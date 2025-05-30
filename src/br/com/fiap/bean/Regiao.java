@@ -5,7 +5,8 @@ import java.util.List;
 
 /*** Representa uma região monitorada pelo sistema GuardFlama.
  * Cada região pode conter múltiplos sensores, como temperatura e fumaça.
- * Possui métodos para adicionar sensores e verificar o risco de incêndio.
+ * Possui métodos para adicionar sensores, verificar o risco de incêndio
+ * e gerar alertas com base nas leituras atuais.
  * @author Weslley*/
 public class Regiao {
 
@@ -53,6 +54,33 @@ public class Regiao {
                     .append("\n");
         }
         return relatorio.toString();
+    }
+
+    /*** Gera um objeto Alerta com base nas leituras atuais dos sensores da região.
+     * @param id Identificador do alerta a ser criado
+     * @return Objeto Alerta preenchido com os dados atuais*/
+    public Alerta gerarAlerta(int id) {
+        double temperatura = 0;
+        double fumaca = 0;
+
+        for (Sensor sensor : sensores) {
+            if (sensor instanceof SensorTemperatura) {
+                temperatura = sensor.lerValor();
+            } else if (sensor instanceof SensorFumaca) {
+                fumaca = sensor.lerValor();
+            }
+        }
+
+        String nivelRisco;
+        if (temperatura > 40 || fumaca > 70) {
+            nivelRisco = "ALTO";
+        } else if (temperatura > 37 || fumaca > 50) {
+            nivelRisco = "MODERADO";
+        } else {
+            nivelRisco = "BAIXO";
+        }
+
+        return new Alerta(id, nome, nivelRisco, temperatura, fumaca);
     }
 
     public String getNome() { return nome; }
