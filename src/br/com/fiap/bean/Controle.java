@@ -3,11 +3,9 @@ package br.com.fiap.bean;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Classe responsável por controlar as regiões e os alertas no sistema GuardFlama.
+/*** Classe responsável por controlar as regiões e os alertas no sistema GuardFlama.
  * Permite cadastrar regiões, sensores e verificar riscos com base nas leituras.
- * @author Weslley
- */
+ * @author Weslley*/
 public class Controle {
 
     private List<Regiao> regioes;
@@ -43,16 +41,21 @@ public class Controle {
     /*** Verifica o risco em todas as regiões e gera alertas se necessário */
     public void verificarRiscos() {
         for (Regiao r : regioes) {
-            if (r.riscoIncendio()) {
-                double temp = 0.0;
-                double fumaca = 0.0;
-                for (Sensor s : r.getSensores()) {
-                    if (s instanceof SensorTemperatura) temp = s.lerValor();
-                    if (s instanceof SensorFumaca) fumaca = s.lerValor();
-                }
+            double temp = 0.0;
+            double fumaca = 0.0;
 
-                String risco = (temp > 40 && fumaca > 70) ? "Crítico" :
-                        (temp > 35 || fumaca > 50) ? "Moderado" : "Baixo";
+            for (Sensor s : r.getSensores()) {
+                if (s instanceof SensorTemperatura) {
+                    temp = s.lerValor();
+                } else if (s instanceof SensorFumaca) {
+                    fumaca = s.lerValor();
+                }
+            }
+
+            if (temp > 40 || fumaca > 70) {
+                String risco = (temp > 40 && fumaca > 70) ? "Crítico"
+                        : (temp > 35 || fumaca > 50) ? "Moderado"
+                        : "Baixo";
 
                 alertas.add(new Alerta(contadorAlertas++, r.getNome(), risco, temp, fumaca));
             }
