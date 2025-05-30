@@ -33,7 +33,7 @@ O projeto **GuardFlama** foi desenvolvido como parte da Global Solution, com o o
 
 ## 📊 Diagrama UML
 
-![Diagrama UML](src/img/diagrama-uml.png)
+![Diagrama UML](src/img/uml-diagrama.png)
 
 
 ## 🛠️ Tecnologias Utilizadas
