@@ -13,52 +13,58 @@ public class Regiao {
     private String nome;
     private List<Sensor> sensores;
 
-    /*** Construtor que inicializa a região com um nome.
-     * @param nome Nome da região monitorada*/
     public Regiao(String nome) {
         this.nome = nome;
         this.sensores = new ArrayList<>();
     }
 
     /*** Adiciona um sensor à lista de sensores da região.
-     * @param sensor Objeto Sensor a ser adicionado*/
+     * @param sensor Objeto do tipo Sensor (temperatura ou fumaça) a ser adicionado à região*/
     public void adicionarSensor(Sensor sensor) {
         sensores.add(sensor);
     }
 
-    /*** Verifica o risco da região com base nas leituras dos sensores.
-     * @return true se houver risco alto, false caso contrário*/
+    /*** Verifica se a região apresenta risco de incêndio com base nos valores
+     * lidos pelos sensores de temperatura e fumaça.
+     * @return true se algum valor ultrapassar os limites de segurança, false caso contrário*/
     public boolean riscoIncendio() {
+        double temperatura = 0;
+        double fumaca = 0;
+
         for (Sensor sensor : sensores) {
-            if (sensor instanceof SensorTemperatura && sensor.lerValor() > 40) {
-                return true;
-            }
-            if (sensor instanceof SensorFumaca && sensor.lerValor() > 70) {
-                return true;
+            if (sensor instanceof SensorTemperatura) {
+                temperatura = sensor.lerValor();
+            } else if (sensor instanceof SensorFumaca) {
+                fumaca = sensor.lerValor();
             }
         }
-        return false;
+
+        return temperatura > 40 || fumaca > 70;
     }
 
-    /*** Gera um relatório simples com as leituras atuais dos sensores da região.
-     * @return Texto com o resumo dos valores lidos*/
+    /*** Gera um relatório textual com os valores atuais de todos os sensores da região.
+     * @return String contendo a descrição e leituras dos sensores*/
     public String gerarRelatorio() {
         StringBuilder relatorio = new StringBuilder("Relatório da Região: " + nome + "\n");
+
         for (Sensor sensor : sensores) {
+            double valor = sensor.lerValor();
             relatorio.append("- ")
                     .append(sensor.getClass().getSimpleName())
                     .append(" (")
                     .append(sensor.getId())
                     .append("): ")
-                    .append(String.format("%.2f", sensor.lerValor()))
+                    .append(String.format("%.2f", valor))
                     .append("\n");
         }
+
         return relatorio.toString();
     }
 
-    /*** Gera um objeto Alerta com base nas leituras atuais dos sensores da região.
-     * @param id Identificador do alerta a ser criado
-     * @return Objeto Alerta preenchido com os dados atuais*/
+    /*** Cria um alerta de risco baseado nas leituras atuais dos sensores da região.
+     * O nível de risco é classificado como Crítico, Moderado ou Baixo.
+     * @param id Identificador único do alerta
+     * @return Objeto Alerta contendo dados da região, valores e risco*/
     public Alerta gerarAlerta(int id) {
         double temperatura = 0;
         double fumaca = 0;
@@ -73,11 +79,11 @@ public class Regiao {
 
         String nivelRisco;
         if (temperatura > 40 || fumaca > 70) {
-            nivelRisco = "ALTO";
-        } else if (temperatura > 37 || fumaca > 50) {
-            nivelRisco = "MODERADO";
+            nivelRisco = "Crítico";
+        } else if (temperatura > 35 || fumaca > 50) {
+            nivelRisco = "Moderado";
         } else {
-            nivelRisco = "BAIXO";
+            nivelRisco = "Baixo";
         }
 
         return new Alerta(id, nome, nivelRisco, temperatura, fumaca);
