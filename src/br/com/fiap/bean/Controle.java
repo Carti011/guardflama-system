@@ -1,21 +1,23 @@
 package br.com.fiap.bean;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /*** Classe responsável por controlar as regiões e os alertas no sistema GuardFlama.
  * Permite cadastrar regiões, sensores e verificar riscos com base nas leituras.
- * @author Weslley*/
+ * Evita alertas duplicados com base em registros únicos por região, temperatura e fumaça.
+ * @author Weslley */
 public class Controle {
 
     private List<Regiao> regioes;
     private List<Alerta> alertas;
     private int contadorAlertas;
+    private Set<String> alertasRegistrados;
 
     public Controle() {
         this.regioes = new ArrayList<>();
         this.alertas = new ArrayList<>();
         this.contadorAlertas = 1;
+        this.alertasRegistrados = new HashSet<>();
     }
 
     /*** Adiciona uma nova região instanciada externamente (usado em testes mocados) */
@@ -38,7 +40,7 @@ public class Controle {
         }
     }
 
-    /*** Verifica o risco em todas as regiões e gera alertas se necessário */
+    /*** Verifica o risco em todas as regiões e gera alertas se necessário, evitando duplicatas */
     public void verificarRiscos() {
         for (Regiao r : regioes) {
             double temp = 0.0;
@@ -53,11 +55,15 @@ public class Controle {
             }
 
             if (temp > 40 || fumaca > 70) {
-                String risco = (temp > 40 && fumaca > 70) ? "Crítico"
-                        : (temp > 35 || fumaca > 50) ? "Moderado"
-                        : "Baixo";
+                String chave = r.getNome() + "-" + temp + "-" + fumaca;
+                if (!alertasRegistrados.contains(chave)) {
+                    String risco = (temp > 40 && fumaca > 70) ? "Crítico"
+                            : (temp > 35 || fumaca > 50) ? "Moderado"
+                            : "Baixo";
 
-                alertas.add(new Alerta(contadorAlertas++, r.getNome(), risco, temp, fumaca));
+                    alertas.add(new Alerta(contadorAlertas++, r.getNome(), risco, temp, fumaca));
+                    alertasRegistrados.add(chave);
+                }
             }
         }
     }
