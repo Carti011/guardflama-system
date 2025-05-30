@@ -1,33 +1,30 @@
 package br.com.fiap.bean;
 
-/*** Representa um sensor de fumaça utilizado no sistema GuardFlama.
- * Esta classe herda de Sensor e implementa um comportamento específico
- * para a leitura da densidade de fumaça em determinada região.
- * A leitura simula um valor entre 0 e 100.
- * Possui um atributo adicional que define o nível crítico de fumaça.
+/**** Representa um sensor de fumaça utilizado no sistema GuardFlama.
+ * Esta classe herda de Sensor e armazena um valor de densidade de fumaça informado,
+ * permitindo simular leituras manuais determinadas pelo usuário.
  * @author Weslley*/
 public class SensorFumaca extends Sensor {
 
-    private double nivelFumacaCritico;
+    private double nivelFumacaAtual;
 
-    /*** Construtor da subclasse SensorFumaca.
+    /**** Construtor da subclasse SensorFumaca.
      * @param id Identificador do sensor
      * @param localizacao Local onde o sensor está instalado
-     * @param nivelFumacaCritico Nível de fumaça que representa risco*/
-    public SensorFumaca(String id, String localizacao, double nivelFumacaCritico) {
+     * @param nivelFumacaAtual Valor atual da densidade de fumaça medida*/
+    public SensorFumaca(String id, String localizacao, double nivelFumacaAtual) {
         super(id, localizacao);
-        this.nivelFumacaCritico = nivelFumacaCritico;
+        this.nivelFumacaAtual = nivelFumacaAtual;
     }
 
-    public double getNivelFumacaCritico() { return nivelFumacaCritico; }
+    public double getNivelFumacaAtual() { return nivelFumacaAtual; }
 
-    public void setNivelFumacaCritico(double nivelFumacaCritico) { this.nivelFumacaCritico = nivelFumacaCritico; }
+    public void setNivelFumacaAtual(double nivelFumacaAtual) { this.nivelFumacaAtual = nivelFumacaAtual; }
 
-    /*** Sobrescreve o método da superclasse para simular a leitura da densidade de fumaça.
-     * Retorna um valor aleatório entre 0.0 e 100.0 para representar o nível de fumaça no ambiente.
-     * @return valor simulado da densidade de fumaça*/
+    /**** Retorna o valor atual da densidade de fumaça informada para o sensor.
+     * @return valor da fumaça em escala de 0 a 100*/
     @Override
     public double lerValor() {
-        return Math.random() * 100.0;
+        return nivelFumacaAtual;
     }
 }
