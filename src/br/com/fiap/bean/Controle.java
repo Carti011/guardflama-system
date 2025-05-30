@@ -70,14 +70,17 @@ public class Controle {
 
     /*** Lista os alertas gerados */
     public String listarAlertas() {
-        StringBuilder sb = new StringBuilder("🔔 Alertas Gerados:\n");
-        for (Alerta a : alertas) {
-            sb.append("ID ").append(a.getId()).append(" - Região: ")
-                    .append(a.getRegiao()).append(" | Nível: ")
-                    .append(a.getNivelRisco()).append(" | Temperatura: ")
-                    .append(a.getTemperaturaDetectada()).append(" | Fumaça: ")
-                    .append(a.getFumacaDetectada()).append(" | Data: ")
-                    .append(a.getDataHoraFormatada()).append("\n");
+        if (alertas.isEmpty()) return "Nenhum alerta gerado.";
+
+        StringBuilder sb = new StringBuilder("Alertas Gerados:\n");
+        for (Alerta alerta : alertas) {
+            sb.append("ID ").append(alerta.getId())
+                    .append(" - Região: ").append(alerta.getRegiao())
+                    .append(" | Nível: ").append(alerta.getNivelRisco())
+                    .append(" | Temperatura: ").append(String.format("%.2f", alerta.getTemperaturaDetectada()))
+                    .append(" | Fumaça: ").append(String.format("%.2f", alerta.getFumacaDetectada()))
+                    .append(" | Data: ").append(alerta.getDataHoraFormatada())
+                    .append("\n");
         }
         return sb.toString();
     }
