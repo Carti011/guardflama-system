@@ -3,74 +3,81 @@ package br.com.fiap.bean;
 import java.util.ArrayList;
 import java.util.List;
 
-/**** Classe de controle do sistema GuardFlama.
- * Gerencia as regiões monitoradas e os alertas de risco.
- * Responsável por cadastrar sensores, avaliar riscos e gerar relatórios.
- * @author Weslley*/
+/**
+ * Classe responsável por controlar as regiões e os alertas no sistema GuardFlama.
+ * Permite cadastrar regiões, sensores e verificar riscos com base nas leituras.
+ * @author Weslley
+ */
 public class Controle {
 
     private List<Regiao> regioes;
     private List<Alerta> alertas;
-    private int proximoIdAlerta = 1;
+    private int contadorAlertas;
 
     public Controle() {
         this.regioes = new ArrayList<>();
         this.alertas = new ArrayList<>();
+        this.contadorAlertas = 1;
     }
 
-    // Cadastra nova região
+    /*** Adiciona uma nova região instanciada externamente (usado em testes mocados) */
+    public void adicionarRegiao(Regiao regiao) {
+        regioes.add(regiao);
+    }
+
+    /*** Cadastra uma nova região com base no nome informado */
     public void cadastrarRegiao(String nome) {
         regioes.add(new Regiao(nome));
     }
 
-    // Adiciona sensor a uma região específica
-    public boolean adicionarSensor(String nomeRegiao, Sensor sensor) {
-        for (Regiao regiao : regioes) {
-            if (regiao.getNome().equalsIgnoreCase(nomeRegiao)) {
-                regiao.adicionarSensor(sensor);
-                return true;
+    /*** Adiciona um sensor a uma região existente */
+    public void adicionarSensor(String nomeRegiao, Sensor sensor) {
+        for (Regiao r : regioes) {
+            if (r.getNome().equalsIgnoreCase(nomeRegiao)) {
+                r.adicionarSensor(sensor);
+                break;
             }
         }
-        return false;
     }
 
-    // Verifica todas as regiões e gera alertas se houver risco
+    /*** Verifica o risco em todas as regiões e gera alertas se necessário */
     public void verificarRiscos() {
-        for (Regiao regiao : regioes) {
-            if (regiao.riscoIncendio()) {
-                double temp = 0;
-                double fumaca = 0;
-                for (Sensor sensor : regiao.getSensores()) {
-                    if (sensor instanceof SensorTemperatura) temp = sensor.lerValor();
-                    if (sensor instanceof SensorFumaca) fumaca = sensor.lerValor();
+        for (Regiao r : regioes) {
+            if (r.riscoIncendio()) {
+                double temp = 0.0;
+                double fumaca = 0.0;
+                for (Sensor s : r.getSensores()) {
+                    if (s instanceof SensorTemperatura) temp = s.lerValor();
+                    if (s instanceof SensorFumaca) fumaca = s.lerValor();
                 }
-                String nivel = (temp > 42 || fumaca > 85) ? "Crítico" : "Moderado";
-                Alerta alerta = new Alerta(proximoIdAlerta++, regiao.getNome(), nivel, temp, fumaca);
-                alertas.add(alerta);
+
+                String risco = (temp > 40 && fumaca > 70) ? "Crítico" :
+                        (temp > 35 || fumaca > 50) ? "Moderado" : "Baixo";
+
+                alertas.add(new Alerta(contadorAlertas++, r.getNome(), risco, temp, fumaca));
             }
         }
     }
 
-    // Gera relatório de todas as regiões
+    /*** Gera relatório de todas as regiões */
     public String gerarRelatorioCompleto() {
-        StringBuilder relatorio = new StringBuilder();
-        for (Regiao regiao : regioes) {
-            relatorio.append(regiao.gerarRelatorio()).append("\n");
+        StringBuilder sb = new StringBuilder();
+        for (Regiao r : regioes) {
+            sb.append(r.gerarRelatorio()).append("\n");
         }
-        return relatorio.toString();
+        return sb.toString();
     }
 
-    // Lista os alertas registrados
+    /*** Lista os alertas gerados */
     public String listarAlertas() {
-        StringBuilder sb = new StringBuilder("Alertas gerados:\n");
-        for (Alerta alerta : alertas) {
-            sb.append("ID: ").append(alerta.getId())
-                    .append(" | Região: ").append(alerta.getRegiao())
-                    .append(" | Nível: ").append(alerta.getNivelRisco())
-                    .append(" | Temp: ").append(String.format("%.2f", alerta.getTemperaturaDetectada()))
-                    .append(" | Fumaça: ").append(String.format("%.2f", alerta.getFumacaDetectada()))
-                    .append(" | Data: ").append(alerta.getDataHoraFormatada())
-                    .append("\n");
+        StringBuilder sb = new StringBuilder("🔔 Alertas Gerados:\n");
+        for (Alerta a : alertas) {
+            sb.append("ID ").append(a.getId()).append(" - Região: ")
+                    .append(a.getRegiao()).append(" | Nível: ")
+                    .append(a.getNivelRisco()).append(" | Temperatura: ")
+                    .append(a.getTemperaturaDetectada()).append(" | Fumaça: ")
+                    .append(a.getFumacaDetectada()).append(" | Data: ")
+                    .append(a.getDataHoraFormatada()).append("\n");
         }
         return sb.toString();
     }
